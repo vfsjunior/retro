@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Alura\Mvc\Application\Service\SessionService;
 use Alura\Mvc\Controller\{
     Controller,
     DeleteVideoController,
@@ -15,7 +16,7 @@ use Alura\Mvc\Repository\VideoRepository;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$dbPath = __DIR__ . '/../banco.sqlite.sqlite';
+$dbPath = __DIR__ . '/../banco';
 $pdo = new PDO("sqlite:$dbPath");
 $videoRepository = new VideoRepository($pdo);
 
@@ -23,6 +24,10 @@ $routes = require_once __DIR__ . '/../config/routes.php';
 
 $pathInfo = $_SERVER['PATH_INFO'] ?? '/';
 $httpMethod = $_SERVER['REQUEST_METHOD'];
+
+if (!SessionService::logado() && !SessionService::isTelaLogin($pathInfo)) {
+    header('Location: /login');
+}
 
 $key = "$httpMethod|$pathInfo";
 if (array_key_exists($key, $routes)) {
